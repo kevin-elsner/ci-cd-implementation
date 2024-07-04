@@ -16,7 +16,7 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
-image: docker:git
+image: alpine:latest
 
 stages:          # List of stages for jobs, and their order of execution
   - build
@@ -27,7 +27,8 @@ variables:
   GIT_CLEAN_FLAGS: none
 
 before_script:
-  - apk update && apk add git
+  - apk update && apk add git ca-certificates openssl
+  - git config --global http.sslVersion tlsv1.2
   - git config --global user.email "kevin.p@elsner.com"
   - git config --global user.name "Kevin Panchani"
   - git remote set-url origin https://oauth2:${GITLAB_TOKEN}@gitlab.elsner.com/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git
