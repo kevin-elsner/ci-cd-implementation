@@ -19,7 +19,6 @@
 image: alpine:latest
 
 stages:          # List of stages for jobs, and their order of execution
-  - build
   - deploy
 
 variables:
@@ -36,12 +35,6 @@ before_script:
   - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
   - git config --global user.email "kevin.p@elsner.com"
   - git config --global user.name "Kevin Panchani"
-  
-build-job:       # This job runs in the build stage, which runs first.
-  stage: build
-  script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
