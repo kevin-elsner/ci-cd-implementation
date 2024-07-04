@@ -48,6 +48,9 @@ deploy-job:      # This job runs in the deploy stage.
       if git show-ref --verify --quiet refs/heads/master; then
         git checkout master
         echo "in if..."
+      else
+        git checkout -b master
+        echo "in else..."
       fi
     - git merge origin/staging -m "Merge branch 'staging' into master"
     - git push origin master
