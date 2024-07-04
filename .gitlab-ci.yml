@@ -46,4 +46,14 @@ deploy-job:      # This job runs in the deploy stage.
   environment: production
   script:
     - echo "Deploying application..."
+    - git config --global user.email "kevin.p@elsner.com"
+    - git config --global user.name "Kevin Panchani"
+    - git remote set-url origin https://oauth2:${GITLAB_TOKEN}@gitlab.elsner.com/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git
+    - git checkout master
+    - git merge staging -m "Merge branch 'staging' into master"
+    - git push origin master
+    - php bin/magento s:up
+    - php bin/magento s:d:c
+    - php bin/magento s:s:d -f
+    - php bin/magento c:f
     - echo "Application successfully deployed."
