@@ -42,7 +42,7 @@ deploy-job:      # This job runs in the deploy stage.
     - git branch -v
     - git pull origin staging
     - git checkout master
-    - git merge -m "Merge branch 'staging' into master" origin/staging
+    - git merge --allow-unrelated-histories -X ours -m "Merge branch 'staging' into master" origin/staging
     - git push origin master
     - php bin/magento s:up
     - php bin/magento s:d:c
