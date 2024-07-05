@@ -27,16 +27,17 @@ variables:
 
 before_script:
   - apk update && apk add --no-cache openssh-client git
-  - git config --global user.email "kevin.p@elsner.com"
-  - git config --global user.name "Kevin Panchani"
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
     - echo "Deploying application..."
+    - git config --global user.email "kevin.p@elsner.com"
+    - git config --global user.name "Kevin Panchani"
     - git remote set-url origin http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.elsner.com/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git
     - git fetch origin
+    - git branch -v
     - git pull origin staging
     - |
       if git show-ref --verify --quiet refs/heads/master; then
