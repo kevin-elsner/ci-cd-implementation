@@ -27,6 +27,8 @@ variables:
 
 before_script:
   - apk update && apk add --no-cache openssh-client git
+  - echo -e "protocol=https\nhost=gitlab.com\nusername=gitlab-ci-token\npassword=${CI_JOB_TOKEN}" > ~/.git-credentials
+  - git config --global credential.helper store
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
@@ -47,8 +49,7 @@ deploy-job:      # This job runs in the deploy stage.
         git checkout -b master
         echo "in else..."
       fi
-    - git pull origin master
-    - git merge origin/staging -m "Merge branch 'staging' into master"
+    - git merge -X ours staging -m "Merge branch 'staging' into master"
     - git push origin master
     - php bin/magento s:up
     - php bin/magento s:d:c
