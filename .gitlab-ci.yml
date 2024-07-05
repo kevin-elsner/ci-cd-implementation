@@ -49,7 +49,7 @@ deploy-job:      # This job runs in the deploy stage.
         git checkout -b master
         echo "in else..."
       fi
-    - git merge -X ours staging -m "Merge branch 'staging' into master"
+    - git merge -X ours origin/staging -m "Merge branch 'staging' into master"
     - git push origin master
     - php bin/magento s:up
     - php bin/magento s:d:c
