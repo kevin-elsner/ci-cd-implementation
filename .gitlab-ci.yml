@@ -39,7 +39,7 @@ deploy-job:      # This job runs in the deploy stage.
   environment: production
   script:
     - echo "Deploying application..."
-    - git remote set-url origin http://${CI_JOB_TOKEN}:x-oauth-basic@gitlab.elsner.com/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git
+    - git remote set-url origin http://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.elsner.com/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git
     - git fetch origin
     - |
       if git show-ref --verify --quiet refs/heads/master; then
