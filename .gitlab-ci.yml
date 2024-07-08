@@ -40,5 +40,5 @@ deploy-job:      # This job runs in the deploy stage.
     - echo "Deploying application..."
     - git config --global user.email "kevin.p@elsner.com"
     - git config --global user.name "Kevin Panchani"
-    - ssh ci-cd@192.168.5.232 -p 1024 "cd /home/ci-cd/public_html"
+    - ssh -o StrictHostKeyChecking=no ci-cd@192.168.5.232 -p 1024 "cd /home/ci-cd/public_html"
     - echo "Application successfully deployed."
