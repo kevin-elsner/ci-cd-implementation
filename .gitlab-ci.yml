@@ -24,9 +24,12 @@ stages:          # List of stages for jobs, and their order of execution
 variables:
   GIT_STRATEGY: clone
   GIT_CLEAN_FLAGS: none
+  SSH_KNOWN_HOSTS: "gitlab.elsner.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDAVF57tAqGO/xFz5nAt2BS3XYG7TBHGDFzzygiUFC0bGp7ZsLOf12+yVEEpnhiXEVwT1JPdV6b3RdZ1OgG4Yb4rKRUO0Q3Y7uaP2A2wsfdUD7XMlWTR0R3rV+cZjUldpl8SpEY3/v8p1FrY1dwOPNlCyNPshYQegr7aaYg7dyNWgTxb9egZnVTtiKlWBC/jlxWBzzgKM9Zqg0yx2yatIGdC3Y3bd9OngFeIwqMMRGJ+/ZVWDEUmMxo2GWpZf+YBWR/qnF+nFD7KAWehlFM4cMQgXYjBxTFUzi01kZYoDhsw/A8zfQG5dt/cPHx3+JE9W9uzRQWaD3bBxIa8pPd3iV/Ej8bwmpHCVPgTQjEPD3NybhWx6NeYYEhYSBMWPyHerL9tC4u3BJKEdDh8xsM1hFyiNMIB6wD5TzgfSj2us5nOOiKMjOJX/u3/7hY6dyGXIm2Tv12aeOEX6L4/yrPrzXgHO886sMU6m0dlZ/kFWrAIeoWAAGu42DuBpxBsfQR5PMWtyu+ej6rp14sJxXnhlR5FLymqDyVLtaXQLxhZDRk7dY+BufIK2hxypliCFHXgLXxfobnlvXTz0bZWwcZa++b5fOL0hLQadf8WmZgFAT1HVykboQoUIF1ezMskXNPNJuUISWgUk1P8maZh+1KYixXJcwOgILDcSbDkB1RtC8Npw== \ngitlab.elsner.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINu/aDU2sBmdk0veM8LELAkoINbIgcDX4Fjo9hPYVCm9"
 
 before_script:
   - apk update && apk add --no-cache openssh-client git
+  - mkdir -p ~/.ssh
+  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   - echo -e "protocol=https\nhost=gitlab.com\nusername=gitlab-ci-token\npassword=${CI_JOB_TOKEN}" > ~/.git-credentials
   - git config --global credential.helper store
 
