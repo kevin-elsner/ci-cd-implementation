@@ -30,6 +30,9 @@ before_script:
   - apk update && apk add --no-cache openssh-client git
   - mkdir -p ~/.ssh
   - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - ssh-keyscan -p 1024 192.168.5.232 >> ~/.ssh/known_hosts
   - echo -e "protocol=https\nhost=gitlab.com\nusername=gitlab-ci-token\npassword=${CI_JOB_TOKEN}" > ~/.git-credentials
   - git config --global credential.helper store
 
