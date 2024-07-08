@@ -33,20 +33,12 @@ before_script:
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
+  url: https://ci-cd.elsnermage.com
   script:
     - echo "Deploying application..."
     - git config --global user.email "kevin.p@elsner.com"
     - git config --global user.name "Kevin Panchani"
-    - git remote set-url origin http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.elsner.com/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}.git
-    - git fetch origin
-    - git remote -v
-    - git branch -v
-    - git pull origin staging
-    - git checkout master
-    - git pull origin master
-    - git push origin master
-    - php bin/magento s:up
-    - php bin/magento s:d:c
-    - php bin/magento s:s:d -f
-    - php bin/magento c:f
+    - ssh ci-cd@192.168.5.232 -p 1024 "cd /home/ci-cd/public_html && git pull origin master && php bin/magento c:f"
     - echo "Application successfully deployed."
+  only:
+    - master
