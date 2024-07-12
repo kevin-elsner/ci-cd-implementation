@@ -38,7 +38,7 @@ deploy-job:      # This job runs in the deploy stage.
   script:
     - echo "Deploying application..."
     - sshpass -p "$PRODUCTION_PASSWORD" ssh -p $PRODUCTION_PORT -o StrictHostKeyChecking=no $PRODUCTION_SERVER "echo 'SSH connection successful'"
-    - sshpass -p "$PRODUCTION_PASSWORD" ssh -p $PRODUCTION_PORT -o StrictHostKeyChecking=no $PRODUCTION_SERVER "cd /home/ci-cd/public_html && git branch -v"
+    - sshpass -p "$PRODUCTION_PASSWORD" ssh -p $PRODUCTION_PORT -o StrictHostKeyChecking=no $PRODUCTION_SERVER "cd /home/ci-cd/public_html && git branch -v && docker exec -it magento246p6_magento2 bash && php bin/magento c:f"
     - echo "Application successfully deployed."
   only:
     - master
