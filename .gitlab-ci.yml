@@ -16,32 +16,30 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
-image: alpine:latest
-
 stages:          # List of stages for jobs, and their order of execution
   - deploy
 
 variables:
   GIT_STRATEGY: clone
   GIT_CLEAN_FLAGS: none
+  PRODUCTION_SERVER: "ci-cd@192.168.5.232"
   SSH_KNOWN_HOSTS: "192.168.5.232:1024 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDJlz32Mt7xTJaPdIEn7blWr14SqBEDraT6UsKr+6XDDhowrOZaUdSxmdihBM+c4HHvq2h5GsJbIQft7tIdvMGHho9AeBpbRSICn0GUeRJ3sB0pd/jiQKO8D9Cqbnqer6d/m2A1Pj6/32tTvxnqRuzA9JfIYmBrW0XMvxETxVZXL73vaa1/Yjkw1aks14VEgbMLfYddMR1PujafYrVtZWih825kYP96OnKEUf8cKvegA+QOb/StJcC0iq1Mg2WV39EsZqro9Vb/EDD74RVsxJ6OVPRVkaUxBVvhcHhgtnGPH7po5X2mJFa8FZQp15AaHzAZhdphES+g88EYT1FRROSrdRj07CyymuDL9jLudCOcgvXQJKycsK88/uheG/69VLh3Chc0vdZErgmBNv6r16PUiQ4PmGyUqbjhzlPrWvFp5w4GQmUh7eAMIfnVPivcIlyg2dpM9B9mKWqIqXwtHcdWz3sKXh/TOdFXo5qthiSwkMW552O0PoBcAIdtk/kadxk="
 
 before_script:
-  - apk update && apk add --no-cache openssh-client git
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
   - mkdir -p ~/.ssh
-  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-  - chmod 600 ~/.ssh/id_rsa
-  - ssh-keyscan -p 1024 192.168.5.232 >> ~/.ssh/known_hosts
-  - echo -e "protocol=https\nhost=gitlab.com\nusername=gitlab-ci-token\npassword=${CI_JOB_TOKEN}" > ~/.git-credentials
-  - git config --global credential.helper store
+  - chmod 700 ~/.ssh
+  - ssh-keyscan -H $PRODUCTION_SERVER >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
     - echo "Deploying application..."
-    - git config --global user.email "kevin.p@elsner.com"
-    - git config --global user.name "Kevin Panchani"
-    - ssh -o StrictHostKeyChecking=no ci-cd@192.168.5.232 -p 1024 "cd /home/ci-cd/public_html"
+    - ssh $PRODUCTION_SERVER "cd /home/ci-cd/public_html && git pull origin master && ./deploy.sh"
     - echo "Application successfully deployed."
+  only:
+    - master
