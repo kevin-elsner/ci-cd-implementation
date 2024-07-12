@@ -16,31 +16,30 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
-image: alpine:latest
-
 stages:          # List of stages for jobs, and their order of execution
   - deploy
 
 variables:
   GIT_STRATEGY: clone
   GIT_CLEAN_FLAGS: none
-  SSH_KNOWN_HOSTS: "gitlab.elsner.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDAVF57tAqGO/xFz5nAt2BS3XYG7TBHGDFzzygiUFC0bGp7ZsLOf12+yVEEpnhiXEVwT1JPdV6b3RdZ1OgG4Yb4rKRUO0Q3Y7uaP2A2wsfdUD7XMlWTR0R3rV+cZjUldpl8SpEY3/v8p1FrY1dwOPNlCyNPshYQegr7aaYg7dyNWgTxb9egZnVTtiKlWBC/jlxWBzzgKM9Zqg0yx2yatIGdC3Y3bd9OngFeIwqMMRGJ+/ZVWDEUmMxo2GWpZf+YBWR/qnF+nFD7KAWehlFM4cMQgXYjBxTFUzi01kZYoDhsw/A8zfQG5dt/cPHx3+JE9W9uzRQWaD3bBxIa8pPd3iV/Ej8bwmpHCVPgTQjEPD3NybhWx6NeYYEhYSBMWPyHerL9tC4u3BJKEdDh8xsM1hFyiNMIB6wD5TzgfSj2us5nOOiKMjOJX/u3/7hY6dyGXIm2Tv12aeOEX6L4/yrPrzXgHO886sMU6m0dlZ/kFWrAIeoWAAGu42DuBpxBsfQR5PMWtyu+ej6rp14sJxXnhlR5FLymqDyVLtaXQLxhZDRk7dY+BufIK2hxypliCFHXgLXxfobnlvXTz0bZWwcZa++b5fOL0hLQadf8WmZgFAT1HVykboQoUIF1ezMskXNPNJuUISWgUk1P8maZh+1KYixXJcwOgILDcSbDkB1RtC8Npw== \ngitlab.elsner.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINu/aDU2sBmdk0veM8LELAkoINbIgcDX4Fjo9hPYVCm9"
+  PRODUCTION_SERVER: "ci-cd@192.168.5.232"
+  SSH_KNOWN_HOSTS: "192.168.5.232:1024 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDJlz32Mt7xTJaPdIEn7blWr14SqBEDraT6UsKr+6XDDhowrOZaUdSxmdihBM+c4HHvq2h5GsJbIQft7tIdvMGHho9AeBpbRSICn0GUeRJ3sB0pd/jiQKO8D9Cqbnqer6d/m2A1Pj6/32tTvxnqRuzA9JfIYmBrW0XMvxETxVZXL73vaa1/Yjkw1aks14VEgbMLfYddMR1PujafYrVtZWih825kYP96OnKEUf8cKvegA+QOb/StJcC0iq1Mg2WV39EsZqro9Vb/EDD74RVsxJ6OVPRVkaUxBVvhcHhgtnGPH7po5X2mJFa8FZQp15AaHzAZhdphES+g88EYT1FRROSrdRj07CyymuDL9jLudCOcgvXQJKycsK88/uheG/69VLh3Chc0vdZErgmBNv6r16PUiQ4PmGyUqbjhzlPrWvFp5w4GQmUh7eAMIfnVPivcIlyg2dpM9B9mKWqIqXwtHcdWz3sKXh/TOdFXo5qthiSwkMW552O0PoBcAIdtk/kadxk="
 
 before_script:
-  - apk update && apk add --no-cache openssh-client git
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
   - mkdir -p ~/.ssh
-  - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-  - echo -e "protocol=https\nhost=gitlab.com\nusername=gitlab-ci-token\npassword=${CI_JOB_TOKEN}" > ~/.git-credentials
-  - git config --global credential.helper store
+  - chmod 700 ~/.ssh
+  - ssh-keyscan -H $PRODUCTION_SERVER >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
     - echo "Deploying application..."
-    - git config --global user.email "kevin.p@elsner.com"
-    - git config --global user.name "Kevin Panchani"
-    - ssh ci-cd@192.168.5.232 -p 1024 "cd /home/ci-cd/public_html && git pull origin master && php bin/magento c:f"
+    - ssh $PRODUCTION_SERVER "cd /home/ci-cd/public_html && git pull origin master && ./deploy.sh"
     - echo "Application successfully deployed."
   only:
     - master
