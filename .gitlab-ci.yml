@@ -28,7 +28,7 @@ variables:
   SSH_KNOWN_HOSTS: "192.168.5.232:1024 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDJlz32Mt7xTJaPdIEn7blWr14SqBEDraT6UsKr+6XDDhowrOZaUdSxmdihBM+c4HHvq2h5GsJbIQft7tIdvMGHho9AeBpbRSICn0GUeRJ3sB0pd/jiQKO8D9Cqbnqer6d/m2A1Pj6/32tTvxnqRuzA9JfIYmBrW0XMvxETxVZXL73vaa1/Yjkw1aks14VEgbMLfYddMR1PujafYrVtZWih825kYP96OnKEUf8cKvegA+QOb/StJcC0iq1Mg2WV39EsZqro9Vb/EDD74RVsxJ6OVPRVkaUxBVvhcHhgtnGPH7po5X2mJFa8FZQp15AaHzAZhdphES+g88EYT1FRROSrdRj07CyymuDL9jLudCOcgvXQJKycsK88/uheG/69VLh3Chc0vdZErgmBNv6r16PUiQ4PmGyUqbjhzlPrWvFp5w4GQmUh7eAMIfnVPivcIlyg2dpM9B9mKWqIqXwtHcdWz3sKXh/TOdFXo5qthiSwkMW552O0PoBcAIdtk/kadxk="
 
 before_script:
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - 'which ssh-agent || ( apt-get update -y && apt-get install -y openssh-client sshpass )'
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
