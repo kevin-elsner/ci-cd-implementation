@@ -29,19 +29,13 @@ variables:
 
 before_script:
   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - ssh-keyscan -H $PRODUCTION_SERVER >> ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   script:
     - echo "Deploying application..."
-    - ssh $PRODUCTION_SERVER "cd /home/ci-cd/public_html && git pull origin master && ./deploy.sh"
+    - ssh sshpass -p2lhINlmPHa5iraVE9L ssh ci-cd@192.168.5.232 -p 1024 "cd /home/ci-cd/public_html && git pull origin master && ./deploy.sh"
     - echo "Application successfully deployed."
   only:
     - master
